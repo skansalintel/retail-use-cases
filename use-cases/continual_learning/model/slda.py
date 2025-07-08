@@ -110,7 +110,8 @@ class SLDA(tf.keras.Model):
     self.compiled_metrics.update_state(y, y_pred)
     history = {m.name: m.result() for m in self.metrics}
     return history
-
+  
+  @tf.function
   def call(self, x):
     """Inference step, update inverse if not done (once)"""
     if self._trigger_update:
