@@ -135,7 +135,6 @@ def process_path(file_path):
 def Train(mode, abs_path, groundtruth = None):
     global model
     global num_files
-
     num_train_samples = 1
 
     # Extract groundtruth from directory
@@ -190,8 +189,14 @@ def Train(mode, abs_path, groundtruth = None):
                     .map(as_tuple(x='image', y='label'))
                     .batch(1)  # SLDA learns 1-sample at a time. Inference can be done on batch.
                     .prefetch(tf.data.AUTOTUNE))
-
-        model.fit(train_ds, epochs=1)
+        # Convert dataset to numpy arrays before fitting
+        for features, labels in train_ds:
+            try:
+                # Explicitly pass X and y to fit method
+                model.fit(X=features.numpy(), y=labels.numpy(), epochs=1)
+            except Exception as e:
+                print(f"Error during training: {e}")
+                continue
         print("")
 
 def Test(filename, mode, measure_cta):
